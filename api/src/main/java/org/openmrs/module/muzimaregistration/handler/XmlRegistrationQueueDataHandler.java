@@ -33,7 +33,9 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.muzima.exception.QueueProcessorException;
 import org.openmrs.module.muzima.model.QueueData;
 import org.openmrs.module.muzima.model.handler.QueueDataHandler;
+import org.openmrs.module.muzimaregistration.api.PatientFingerprintService;
 import org.openmrs.module.muzimaregistration.api.RegistrationDataService;
+import org.openmrs.module.muzimaregistration.api.model.PatientFingerprint;
 import org.openmrs.module.muzimaregistration.api.model.RegistrationData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -320,22 +322,13 @@ public class XmlRegistrationQueueDataHandler implements QueueDataHandler {
     }
 
     private void savePatientsFinger(final Patient unsavedPatient, final String value) {
-         PersonService personService = Context.getPersonService();
-        PersonAttributeType fingerAttributeType= personService.getPersonAttributeTypeByName("finger");
-        PersonAttribute fingerAttribute = new PersonAttribute();
-        fingerAttribute.setAttributeType(fingerAttributeType);
-        fingerAttribute.setValue(value);
-        unsavedPatient.addAttribute(fingerAttribute);
+        savePatientsFingerprint(unsavedPatient, value);
     }
 
      private void savePatientsFingerprint(final Patient unsavedPatient, final String value) {
-         PersonService personService = Context.getPersonService();
-        PersonAttributeType fingerprintAttributeType= personService.getPersonAttributeTypeByName("fingerprint");
-        PersonAttribute fingerprintAttribute = new PersonAttribute();
-        fingerprintAttribute.setAttributeType(fingerprintAttributeType);
-        fingerprintAttribute.setValue(value);
-        unsavedPatient.addAttribute(fingerprintAttribute);
-
+         PatientFingerprintService patientFingerprintService = Context.getService(PatientFingerprintService.class);
+         PatientFingerprint patientFingerprint = new PatientFingerprint(unsavedPatient.getUuid(), value);
+         patientFingerprintService.savePatientFingerprint(patientFingerprint);
     }
 
 }
